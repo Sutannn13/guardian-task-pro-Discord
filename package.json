@@ -1,0 +1,30 @@
+{
+  "name": "guardian-task-pro",
+  "version": "1.0.0",
+  "description": "GuardianTask Pro - Discord Bot untuk Moderation Server dan Manajemen Tugas Kuliah",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js",
+    "deploy": "node src/deploy-commands.js"
+  },
+  "keywords": [
+    "discord",
+    "discord-bot",
+    "moderation",
+    "task-management",
+    "discord.js"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "node-cron": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
