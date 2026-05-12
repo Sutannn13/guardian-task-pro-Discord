@@ -36,42 +36,48 @@ export default {
       );
 
       // Moderation Stats
+      const modStats = dashboard.moderation || {};
+      const severityCounts = modStats.severityCounts || { ringan: 0, sedang: 0, berat: 0 };
+
       embed.addFields(
         { name: '🛡️ Moderasi', value: '​', inline: false },
-        { name: 'Total Peringatan', value: String(dashboard.moderation.totalWarnings), inline: true },
-        { name: 'Minggu Ini', value: String(dashboard.moderation.weeklyWarnings), inline: true }
+        { name: 'Total Peringatan', value: String(modStats.totalWarnings || 0), inline: true },
+        { name: 'Minggu Ini', value: String(modStats.weeklyWarnings || 0), inline: true }
       );
 
-      const severityLines = Object.entries(dashboard.moderation.severityCounts)
+      const severityLines = Object.entries(severityCounts)
         .map(([level, count]) => `${level}: ${count}`)
         .join(', ');
       embed.addFields({ name: 'Tingkat', value: severityLines, inline: false });
 
       // Task Stats
+      const taskStats = dashboard.tasks || {};
       embed.addFields(
         { name: '📋 Tugas', value: '​', inline: false },
-        { name: 'Total', value: String(dashboard.tasks.total || 0), inline: true },
-        { name: 'Pending', value: String(dashboard.tasks.pending || 0), inline: true },
-        { name: 'Selesai', value: String(dashboard.tasks.completed || 0), inline: true }
+        { name: 'Total', value: String(taskStats.total || 0), inline: true },
+        { name: 'Pending', value: String(taskStats.pending || 0), inline: true },
+        { name: 'Selesai', value: String(taskStats.completed || 0), inline: true }
       );
 
-      if (dashboard.tasks.overdueCount > 0) {
-        embed.addFields({ name: '⚠️ Terlambat', value: String(dashboard.tasks.overdueCount), inline: true });
+      if ((taskStats.overdueCount || 0) > 0) {
+        embed.addFields({ name: '⚠️ Terlambat', value: String(taskStats.overdueCount), inline: true });
       }
 
       // Report Stats
+      const reportStats = dashboard.reports || {};
       embed.addFields(
         { name: '🚨 Laporan', value: '​', inline: false },
-        { name: 'Total', value: String(dashboard.reports.total || 0), inline: true },
-        { name: 'Pending', value: String(dashboard.reports.pending || 0), inline: true },
-        { name: 'Terselesaikan', value: String(dashboard.reports.resolved || 0), inline: true }
+        { name: 'Total', value: String(reportStats.total || 0), inline: true },
+        { name: 'Pending', value: String(reportStats.pending || 0), inline: true },
+        { name: 'Terselesaikan', value: String(reportStats.resolved || 0), inline: true }
       );
 
       // Top Users
-      if (dashboard.topUsers.length > 0) {
-        const topList = dashboard.topUsers
+      const topUsers = dashboard.topUsers || [];
+      if (topUsers.length > 0) {
+        const topList = topUsers
           .slice(0, 5)
-          .map((u, i) => `${i + 1}. ${u.username || 'Unknown'} - ${u.total_points} poin`)
+          .map((u, i) => `${i + 1}. ${u.username || 'Unknown'} - ${u.total_points || 0} poin`)
           .join('\n');
         embed.addFields({ name: '🏆 Top Users', value: topList, inline: false });
       }

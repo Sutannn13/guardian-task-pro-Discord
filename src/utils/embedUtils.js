@@ -20,28 +20,43 @@ function createBaseEmbed(color = COLORS.INFO) {
     .setTimestamp();
 }
 
+function applyDescription(embed, description) {
+  if (description && description.trim().length > 0) {
+    embed.setDescription(description);
+  }
+  return embed;
+}
+
 export function createSuccessEmbed(title, description = '') {
-  return createBaseEmbed(COLORS.SUCCESS)
-    .setTitle(`✅ ${title}`)
-    .setDescription(description);
+  return applyDescription(
+    createBaseEmbed(COLORS.SUCCESS)
+      .setTitle(`✅ ${title}`),
+    description
+  );
 }
 
 export function createErrorEmbed(title, description = '') {
-  return createBaseEmbed(COLORS.ERROR)
-    .setTitle(`❌ ${title}`)
-    .setDescription(description);
+  return applyDescription(
+    createBaseEmbed(COLORS.ERROR)
+      .setTitle(`❌ ${title}`),
+    description
+  );
 }
 
 export function createWarningEmbed(title, description = '') {
-  return createBaseEmbed(COLORS.WARNING)
-    .setTitle(`⚠️ ${title}`)
-    .setDescription(description);
+  return applyDescription(
+    createBaseEmbed(COLORS.WARNING)
+      .setTitle(`⚠️ ${title}`),
+    description
+  );
 }
 
 export function createInfoEmbed(title, description = '') {
-  return createBaseEmbed(COLORS.INFO)
-    .setTitle(`ℹ️ ${title}`)
-    .setDescription(description);
+  return applyDescription(
+    createBaseEmbed(COLORS.INFO)
+      .setTitle(`ℹ️ ${title}`),
+    description
+  );
 }
 
 export function createDashboardEmbed() {

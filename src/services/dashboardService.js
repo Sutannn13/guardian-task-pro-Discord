@@ -44,13 +44,13 @@ export async function getModerationStats(guildId) {
     };
 
     return {
-      totalWarnings,
-      weeklyWarnings,
+      totalWarnings: totalWarnings || 0,
+      weeklyWarnings: weeklyWarnings || 0,
       severityCounts
     };
   } catch (error) {
     logger.error('Failed to get moderation stats', error);
-    throw error;
+    return { totalWarnings: 0, weeklyWarnings: 0, severityCounts: { ringan: 0, sedang: 0, berat: 0 } };
   }
 }
 
@@ -60,30 +60,39 @@ export async function getTaskStats(guildId) {
     const overdueTasks = taskRepository.getOverdueTasks(guildId);
 
     return {
-      ...stats,
-      overdueCount: overdueTasks.length
+      total: stats?.total || 0,
+      pending: stats?.pending || 0,
+      in_progress: stats?.in_progress || 0,
+      completed: stats?.completed || 0,
+      overdueCount: overdueTasks?.length || 0
     };
   } catch (error) {
     logger.error('Failed to get task stats', error);
-    throw error;
+    return { total: 0, pending: 0, in_progress: 0, completed: 0, overdueCount: 0 };
   }
 }
 
 export async function getReportStats(guildId) {
   try {
-    return reportRepository.getReportStats(guildId);
+    const stats = reportRepository.getReportStats(guildId);
+    return {
+      total: stats?.total || 0,
+      pending: stats?.pending || 0,
+      resolved: stats?.resolved || 0
+    };
   } catch (error) {
     logger.error('Failed to get report stats', error);
-    throw error;
+    return { total: 0, pending: 0, resolved: 0 };
   }
 }
 
 export async function getTopUsers(guildId, limit = 10) {
   try {
-    return userRepository.getTopUsers(guildId, limit);
+    const users = userRepository.getTopUsers(guildId, limit);
+    return users || [];
   } catch (error) {
     logger.error('Failed to get top users', error);
-    throw error;
+    return [];
   }
 }
 

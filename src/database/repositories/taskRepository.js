@@ -27,6 +27,10 @@ export const taskRepository = {
     return getAll('SELECT * FROM tasks WHERE status = ? ORDER BY created_at DESC', [status]);
   },
 
+  findByGuildAndStatus(guildId, status) {
+    return getAll('SELECT * FROM tasks WHERE guild_id = ? AND status = ? ORDER BY created_at DESC', [guildId, status]);
+  },
+
   update(taskId, updates) {
     const fields = [];
     const values = [];

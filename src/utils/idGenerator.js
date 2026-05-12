@@ -12,20 +12,35 @@ function getCurrentYear() {
 
 function getNextSequence(type) {
   const year = getCurrentYear();
-  const key = `${type}_${year}`;
 
+  let table, column, prefix;
+  switch (type) {
+    case 'CASE':
+      table = 'warnings';
+      column = 'case_id';
+      prefix = PREFIX.CASE;
+      break;
+    case 'REPORT':
+      table = 'reports';
+      column = 'report_id';
+      prefix = PREFIX.REPORT;
+      break;
+    case 'TASK':
+      table = 'tasks';
+      column = 'task_id';
+      prefix = PREFIX.TASK;
+      break;
+    default:
+      return 1;
+  }
+
+  const pattern = `${prefix}-${year}-%`;
   const result = getAll(
-    `SELECT id FROM (
-      SELECT id, case_id as code FROM warnings WHERE case_id LIKE ?
-      UNION ALL
-      SELECT id, report_id as code FROM reports WHERE report_id LIKE ?
-      UNION ALL
-      SELECT id, task_id as code FROM tasks WHERE task_id LIKE ?
-    ) ORDER BY code DESC LIMIT 1`,
-    [`${PREFIX.CASE}-${year}-%`, `${PREFIX.REPORT}-${year}-%`, `${PREFIX.TASK}-${year}-%`]
+    `SELECT ${column} AS code FROM ${table} WHERE ${column} LIKE ? ORDER BY ${column} DESC LIMIT 1`,
+    [pattern]
   );
 
-  if (result.length === 0) {
+  if (result.length === 0 || !result[0].code) {
     return 1;
   }
 

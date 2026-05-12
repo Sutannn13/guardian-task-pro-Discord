@@ -81,7 +81,7 @@ export async function removeWarning(caseId, moderatorId, guildId) {
 
 export async function getUserWarnings(userId) {
   try {
-    return warningRepository.findByUser(userId);
+    return warningRepository.findByUserId(userId);
   } catch (error) {
     logger.error('Failed to get user warnings', error);
     throw error;

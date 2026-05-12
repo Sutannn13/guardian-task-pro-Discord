@@ -29,7 +29,7 @@ export default {
       const targetUser = interaction.options.getUser('user');
 
       // Get warnings
-      const warnings = warningRepository.findByUser(targetUser.id);
+      const warnings = warningRepository.findByUserId(targetUser.id);
       const warningStats = warningRepository.getUserWarningCount(targetUser.id);
 
       // Get tasks

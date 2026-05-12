@@ -143,7 +143,7 @@ export async function updateTask(taskId, updates, userId, guildId) {
 export async function getTasks(guildId, status = null) {
   try {
     if (status) {
-      return taskRepository.findByStatus(status);
+      return taskRepository.findByGuildAndStatus(guildId, status);
     }
     return taskRepository.findByGuild(guildId);
   } catch (error) {
