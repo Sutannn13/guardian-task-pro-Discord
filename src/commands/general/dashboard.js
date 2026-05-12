@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import dashboardService from '../../services/dashboardService.js';
+import config from '../../config/env.js';
 import { createDashboardEmbed } from '../../utils/embedUtils.js';
 
 export default {
@@ -49,6 +50,25 @@ export default {
         .map(([level, count]) => `${level}: ${count}`)
         .join(', ');
       embed.addFields({ name: 'Tingkat', value: severityLines, inline: false });
+
+      // Penalty System Stats
+      const penaltyStats = dashboard.penalty || {};
+      const goodReportStats = dashboard.goodReports || {};
+
+      embed.addFields(
+        { name: '⚖️ Penalty System', value: '​', inline: false },
+        { name: 'User dengan Penalty', value: String(penaltyStats.users_with_penalty || 0), inline: true },
+        { name: 'SP1 Aktif', value: String(penaltyStats.sp1_count || 0), inline: true },
+        { name: 'SP2 Aktif', value: String(penaltyStats.sp2_count || 0), inline: true },
+        { name: 'AutoMod Triggers', value: String(penaltyStats.auto_mod_triggers || 0), inline: true },
+        { name: 'Good Report Pending', value: String(goodReportStats.pending || 0), inline: true }
+      );
+
+      // AutoMod Status
+      const autoModStatus = config.AUTO_MOD_ENABLED ? '🟢 ON' : '🔴 OFF';
+      embed.addFields(
+        { name: 'AutoMod', value: autoModStatus, inline: true }
+      );
 
       // Task Stats
       const taskStats = dashboard.tasks || {};

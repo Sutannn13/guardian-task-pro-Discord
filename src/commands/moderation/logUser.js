@@ -3,6 +3,7 @@ import { canWarn } from '../../utils/permissionUtils.js';
 import warningRepository from '../../database/repositories/warningRepository.js';
 import taskRepository from '../../database/repositories/taskRepository.js';
 import reportRepository from '../../database/repositories/reportRepository.js';
+import penaltyRepository from '../../database/repositories/penaltyRepository.js';
 import { createModerationEmbed, createErrorEmbed, createInfoEmbed } from '../../utils/embedUtils.js';
 import { formatDate, parseRelativeTime } from '../../utils/dateUtils.js';
 
@@ -12,7 +13,7 @@ export default {
     .setDescription('Lihat riwayat dan statistik pengguna')
     .addUserOption(option =>
       option.setName('user')
-        .setDescription('Pengguna yang akan dicek')
+        .description('Pengguna yang akan dicek')
         .setRequired(true)
     ),
 
@@ -41,11 +42,46 @@ export default {
       // Get reports
       const reports = reportRepository.findByReportedUser(targetUser.id);
 
+      // Get penalty info
+      const penaltyInfo = penaltyRepository.getUserPenalty(targetUser.id, interaction.guildId);
+      const penaltyLogs = penaltyRepository.findPenaltyLogsByUser(targetUser.id, interaction.guildId, 5);
+
       const embed = createInfoEmbed(`📋 Riwayat: ${targetUser.username}`)
         .setThumbnail(targetUser.displayAvatarURL())
         .addFields(
           { name: '👤 User ID', value: targetUser.id, inline: false }
         );
+
+      // Penalty section
+      const penaltyPoints = penaltyInfo?.penalty_points || 0;
+      const spLevel = penaltyInfo?.sp_level || 0;
+      const threshold = spLevel === 0 ? 30 : 20;
+      const progress = Math.round((penaltyPoints / threshold) * 100);
+      const spText = spLevel === 0 ? 'Normal' : spLevel === 1 ? 'SP1' : spLevel === 2 ? 'SP2' : 'Final';
+
+      embed.addFields(
+        { name: '⚖️ Penalty', value: '​', inline: false },
+        { name: 'Penalty Points', value: `${penaltyPoints}/${threshold}`, inline: true },
+        { name: 'SP Level', value: spText, inline: true },
+        { name: 'Progress', value: `\`${'█'.repeat(Math.round(progress / 10))}${'░'.repeat(10 - Math.round(progress / 10))}\``, inline: false }
+      );
+
+      // Recent penalty logs
+      if (penaltyLogs && penaltyLogs.length > 0) {
+        const logText = penaltyLogs.map(log => {
+          const actionIcon = {
+            'BAD_WORD': '🛡️',
+            'MANUAL_WARN': '⚠️',
+            'SP1': '📋',
+            'SP2': '📋',
+            'DECAY': '⏰',
+            'GOOD_REPORT_APPROVED': '⭐',
+            'RESET': '🔄'
+          }[log.action_type] || '•';
+          return `${actionIcon} \`${log.action_type}\` ${log.points_change > 0 ? '+' : ''}${log.points_change}`;
+        }).join('\n');
+        embed.addFields({ name: 'Recent Penalty', value: logText, inline: false });
+      }
 
       // Warnings section
       const totalWarnings = warningStats.count || 0;

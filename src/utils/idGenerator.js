@@ -3,7 +3,9 @@ import { getAll } from '../database/db.js';
 const PREFIX = {
   CASE: 'GT',
   REPORT: 'RP',
-  TASK: 'TS'
+  TASK: 'TS',
+  PENALTY: 'PN',
+  GOOD_REPORT: 'GR'
 };
 
 function getCurrentYear() {
@@ -29,6 +31,16 @@ function getNextSequence(type) {
       table = 'tasks';
       column = 'task_id';
       prefix = PREFIX.TASK;
+      break;
+    case 'PENALTY':
+      table = 'penalty_logs';
+      column = 'penalty_id';
+      prefix = PREFIX.PENALTY;
+      break;
+    case 'GOOD_REPORT':
+      table = 'good_reports';
+      column = 'report_id';
+      prefix = PREFIX.GOOD_REPORT;
       break;
     default:
       return 1;
@@ -72,4 +84,16 @@ export function generateTaskId() {
   return `${PREFIX.TASK}-${year}-${padNumber(seq)}`;
 }
 
-export default { generateCaseId, generateReportId, generateTaskId };
+export function generatePenaltyId() {
+  const year = getCurrentYear();
+  const seq = getNextSequence('PENALTY');
+  return `${PREFIX.PENALTY}-${year}-${padNumber(seq)}`;
+}
+
+export function generateGoodReportId() {
+  const year = getCurrentYear();
+  const seq = getNextSequence('GOOD_REPORT');
+  return `${PREFIX.GOOD_REPORT}-${year}-${padNumber(seq)}`;
+}
+
+export default { generateCaseId, generateReportId, generateTaskId, generatePenaltyId, generateGoodReportId };

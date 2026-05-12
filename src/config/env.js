@@ -20,7 +20,18 @@ const config = {
   DATABASE_PATH: process.env.DATABASE_PATH || './data/database.sqlite',
   PREFIX: process.env.PREFIX || '!',
   DEBUG_MODE: process.env.DEBUG_MODE === 'true',
-  OWNER_ID: process.env.OWNER_ID || ''
+  OWNER_ID: process.env.OWNER_ID || '',
+
+  // Auto Moderation & Penalty System
+  AUTO_MOD_ENABLED: process.env.AUTO_MOD_ENABLED === 'true',
+  AUTO_KICK_ENABLED: process.env.AUTO_KICK_ENABLED === 'false',
+  PENALTY_NORMAL_THRESHOLD: parseInt(process.env.PENALTY_NORMAL_THRESHOLD) || 30,
+  PENALTY_SP_THRESHOLD: parseInt(process.env.PENALTY_SP_THRESHOLD) || 20,
+  PENALTY_DECAY_HOURS: parseInt(process.env.PENALTY_DECAY_HOURS) || 3,
+  PENALTY_DECAY_POINTS: parseInt(process.env.PENALTY_DECAY_POINTS) || 2,
+  GOOD_REPORT_REDUCTION_POINTS: parseInt(process.env.GOOD_REPORT_REDUCTION_POINTS) || 3,
+  BAD_WORD_DEFAULT_POINTS: parseInt(process.env.BAD_WORD_DEFAULT_POINTS) || 3,
+  AUTO_DELETE_BAD_WORD_MESSAGE: process.env.AUTO_DELETE_BAD_WORD_MESSAGE !== 'false'
 };
 
 export function validateConfig() {

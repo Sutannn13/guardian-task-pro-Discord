@@ -1,8 +1,16 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { canWarn } from '../../utils/permissionUtils.js';
 import moderationService from '../../services/moderationService.js';
+import penaltyService from '../../services/penaltyService.js';
 import { createModerationEmbed, createErrorEmbed, createSuccessEmbed } from '../../utils/embedUtils.js';
 import { formatDate } from '../../utils/dateUtils.js';
+
+// Penalty points mapping for warn severity
+const PENALTY_POINTS = {
+  ringan: 1,
+  sedang: 3,
+  berat: 5
+};
 
 export default {
   data: new SlashCommandBuilder()
@@ -54,6 +62,7 @@ export default {
         });
       }
 
+      // Create warning
       const result = await moderationService.createWarning(
         targetUser.id,
         targetUser.username,
@@ -62,6 +71,18 @@ export default {
         reason,
         severity
       );
+
+      // Add penalty points
+      const penaltyPoints = PENALTY_POINTS[severity] || 3;
+      const penaltyResult = await penaltyService.addPenalty({
+        userId: targetUser.id,
+        username: targetUser.username,
+        guildId: interaction.guildId,
+        points: penaltyPoints,
+        reason: `Warning: ${reason}`,
+        actionType: 'MANUAL_WARN',
+        moderatorId: interaction.user.id
+      });
 
       const embed = createModerationEmbed()
         .setTitle('✅ Peringatan Dibuat')
@@ -74,7 +95,19 @@ export default {
         .addFields(
           { name: '📊 Total Peringatan', value: String(result.totalWarnings), inline: true },
           { name: '🎯 Total Poin', value: String(result.totalPoints), inline: true }
+        )
+        .addFields(
+          { name: '⚖️ Penalty Points', value: `+${penaltyPoints} (Total: ${penaltyResult.pointsAfter}/${penaltyResult.currentThreshold})`, inline: false }
         );
+
+      // Show SP warning if triggered
+      if (penaltyResult.sanctionTriggered) {
+        embed.addFields({
+          name: '⚠️ SANCTION',
+          value: `${penaltyResult.sanctionType} triggered!`,
+          inline: false
+        });
+      }
 
       await interaction.editReply({ embeds: [embed] });
 
@@ -91,7 +124,11 @@ export default {
             { name: '📝 Alasan', value: reason, inline: false },
             { name: '👮 Oleh', value: interaction.user.username, inline: true },
             { name: '📅 Waktu', value: formatDate(new Date()), inline: false }
+          )
+          .addFields(
+            { name: '⚖️ Penalty Point', value: `+${penaltyPoints}`, inline: true }
           );
+
         await targetUser.send({ embeds: [dmEmbed] });
       } catch (dmError) {
         // Silently fail if DM can't be sent

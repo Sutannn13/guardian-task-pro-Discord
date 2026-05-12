@@ -2,6 +2,8 @@ import userRepository from '../database/repositories/userRepository.js';
 import warningRepository from '../database/repositories/warningRepository.js';
 import taskRepository from '../database/repositories/taskRepository.js';
 import reportRepository from '../database/repositories/reportRepository.js';
+import penaltyRepository from '../database/repositories/penaltyRepository.js';
+import goodReportRepository from '../database/repositories/goodReportRepository.js';
 import logger from '../utils/logger.js';
 
 export async function getServerStats(guild) {
@@ -96,6 +98,25 @@ export async function getTopUsers(guildId, limit = 10) {
   }
 }
 
+export async function getPenaltyStats(guildId) {
+  try {
+    return penaltyRepository.getPenaltyStats(guildId);
+  } catch (error) {
+    logger.error('Failed to get penalty stats', error);
+    return { users_with_penalty: 0, sp1_count: 0, sp2_count: 0, auto_mod_triggers: 0 };
+  }
+}
+
+export async function getGoodReportStats(guildId) {
+  try {
+    const pending = goodReportRepository.getPendingCount(guildId);
+    return { pending };
+  } catch (error) {
+    logger.error('Failed to get good report stats', error);
+    return { pending: 0 };
+  }
+}
+
 export async function getFullDashboard(guild) {
   try {
     if (!guild) {
@@ -107,13 +128,17 @@ export async function getFullDashboard(guild) {
       modStats,
       taskStats,
       reportStats,
-      topUsers
+      topUsers,
+      penaltyStats,
+      goodReportStats
     ] = await Promise.all([
       getServerStats(guild),
       getModerationStats(guild.id),
       getTaskStats(guild.id),
       getReportStats(guild.id),
-      getTopUsers(guild.id, 5)
+      getTopUsers(guild.id, 5),
+      getPenaltyStats(guild.id),
+      getGoodReportStats(guild.id)
     ]);
 
     return {
@@ -121,7 +146,9 @@ export async function getFullDashboard(guild) {
       moderation: modStats,
       tasks: taskStats,
       reports: reportStats,
-      topUsers
+      topUsers,
+      penalty: penaltyStats,
+      goodReports: goodReportStats
     };
   } catch (error) {
     logger.error('Failed to get full dashboard', error);
@@ -135,5 +162,7 @@ export default {
   getTaskStats,
   getReportStats,
   getTopUsers,
+  getPenaltyStats,
+  getGoodReportStats,
   getFullDashboard
 };

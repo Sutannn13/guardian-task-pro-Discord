@@ -3,6 +3,7 @@ import config, { validateConfig } from './config/env.js';
 import logger from './utils/logger.js';
 import { onReady } from './events/ready.js';
 import { onInteractionCreate } from './events/interactionCreate.js';
+import { onMessageCreate } from './events/messageCreate.js';
 import { getDatabase, closeDatabase } from './database/db.js';
 
 // Create client with required intents
@@ -26,6 +27,10 @@ client.once('ready', async () => {
 
 client.on('interactionCreate', async (interaction) => {
   await onInteractionCreate(interaction);
+});
+
+client.on('messageCreate', async (message) => {
+  await onMessageCreate(client, message);
 });
 
 // Handle errors
