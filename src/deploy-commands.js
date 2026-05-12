@@ -1,7 +1,7 @@
 import { REST, Routes, SlashCommandBuilder } from 'discord.js';
 import { readdirSync } from 'fs';
 import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import config, { validateConfig } from './config/env.js';
 import logger from './utils/logger.js';
 
@@ -21,7 +21,8 @@ async function loadCommands() {
       for (const file of files) {
         try {
           const commandPath = join(folderPath, file);
-          const command = await import(commandPath);
+          const commandUrl = pathToFileURL(commandPath).href;
+          const command = await import(commandUrl);
 
           if (command.default?.data) {
             commands.push(command.default.data.toJSON());

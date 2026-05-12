@@ -1,6 +1,6 @@
 import { readdirSync } from 'fs';
 import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import logger from './logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -19,7 +19,8 @@ export async function loadCommands(client, commandsPath) {
       for (const file of files) {
         const filePath = join(folderPath, file);
         try {
-          const command = await import(filePath);
+          const fileUrl = pathToFileURL(filePath).href;
+          const command = await import(fileUrl);
 
           if (command.default && typeof command.default.data !== 'undefined') {
             commands.push(command.default);
