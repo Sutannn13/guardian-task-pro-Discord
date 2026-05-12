@@ -28,3 +28,10 @@ Thumbs.db
 # Build
 dist/
 build/
+
+# Local database backups
+data_backup_before_penalty/
+data_backup*/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
